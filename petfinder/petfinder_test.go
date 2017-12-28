@@ -15,7 +15,7 @@ func fetchAPIKey() (string, error) {
 
 }
 
-func TestNewClient(t *testing.T) {
+func TestNewPetFinderClient(t *testing.T) {
 	apiKey, err := fetchAPIKey()
 	if err != nil {
 		t.Error(err)
@@ -200,7 +200,7 @@ func TestGetShelterPets(t *testing.T) {
 		}
 
 		if len(pets) != o.Count {
-			t.Errorf("Did not receive %d pets back for option, %+v\n", len(pets), o)
+			t.Errorf("Receive %d pets back for option, %+v\n", len(pets), o)
 		}
 
 		for _, pet := range pets {

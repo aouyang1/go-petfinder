@@ -15,14 +15,14 @@ func fetchAPIKey() (string, error) {
 
 }
 
-func TestNewPetFinderClient(t *testing.T) {
+func TestNewClient(t *testing.T) {
 	apiKey, err := fetchAPIKey()
 	if err != nil {
 		t.Error(err)
 	}
 
-	p := NewPetFinderClient(apiKey)
-	if p.apiKey == "" {
+	c := NewClient(apiKey)
+	if c.apiKey == "" {
 		t.Errorf("API key not set for petfinder client")
 	}
 }
@@ -33,8 +33,8 @@ func TestBreedList(t *testing.T) {
 		t.Error(err)
 	}
 
-	p := NewPetFinderClient(apiKey)
-	breedList, err := p.ListBreeds(Options{Animal: "dog"})
+	c := NewClient(apiKey)
+	breedList, err := c.ListBreeds(Options{Animal: "dog"})
 	if err != nil {
 		t.Error(err)
 	}
@@ -50,8 +50,8 @@ func TestGetRandomPetID(t *testing.T) {
 		t.Error(err)
 	}
 
-	p := NewPetFinderClient(apiKey)
-	id, err := p.GetRandomPetID(Options{})
+	c := NewClient(apiKey)
+	id, err := c.GetRandomPetID(Options{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -68,14 +68,14 @@ func TestGetRandomPet(t *testing.T) {
 		t.Error(err)
 	}
 
-	p := NewPetFinderClient(apiKey)
+	c := NewClient(apiKey)
 	opts := []Options{
 		Options{Output: "full"},
 		Options{Output: "basic"},
 	}
 
 	for _, o := range opts {
-		pets, err := p.GetRandomPet(o)
+		pets, err := c.GetRandomPet(o)
 		if err != nil {
 			t.Error(err)
 		}
@@ -93,14 +93,14 @@ func TestGetPet(t *testing.T) {
 		t.Error(err)
 	}
 
-	p := NewPetFinderClient(apiKey)
-	id, err := p.GetRandomPetID(Options{})
+	c := NewClient(apiKey)
+	id, err := c.GetRandomPetID(Options{})
 	if err != nil {
 		t.Error(err)
 	}
 
 	opt := Options{ID: id}
-	pets, err := p.GetPet(opt)
+	pets, err := c.GetPet(opt)
 	if err != nil {
 		t.Error(err)
 	}
@@ -116,14 +116,14 @@ func TestFindPet(t *testing.T) {
 		t.Error(err)
 	}
 
-	p := NewPetFinderClient(apiKey)
+	c := NewClient(apiKey)
 	opts := []Options{
 		Options{Location: "75093", Count: 10},
 		Options{Location: "75093", Count: 1},
 	}
 
 	for _, o := range opts {
-		pets, err := p.FindPet(o)
+		pets, err := c.FindPet(o)
 		if err != nil {
 			t.Error(err)
 		}
@@ -144,14 +144,14 @@ func TestFindShelter(t *testing.T) {
 		t.Error(err)
 	}
 
-	p := NewPetFinderClient(apiKey)
+	c := NewClient(apiKey)
 	opts := []Options{
 		Options{Location: "75093", Count: 10},
 		Options{Location: "75093", Count: 1},
 	}
 
 	for _, o := range opts {
-		shelters, err := p.FindShelter(o)
+		shelters, err := c.FindShelter(o)
 		if err != nil {
 			t.Error(err)
 		}
@@ -172,8 +172,8 @@ func TestGetShelter(t *testing.T) {
 		t.Error(err)
 	}
 
-	p := NewPetFinderClient(apiKey)
-	shelter, err := p.GetShelter(Options{ID: "TX1203"})
+	c := NewClient(apiKey)
+	shelter, err := c.GetShelter(Options{ID: "TX1203"})
 	if err != nil {
 		t.Error(err)
 	}
@@ -188,13 +188,13 @@ func TestGetShelterPets(t *testing.T) {
 		t.Error(err)
 	}
 
-	p := NewPetFinderClient(apiKey)
+	c := NewClient(apiKey)
 	opts := []Options{
 		Options{ID: "TX1203", Count: 1},
 		Options{ID: "TX1203", Count: 10},
 	}
 	for _, o := range opts {
-		pets, err := p.GetShelterPets(o)
+		pets, err := c.GetShelterPets(o)
 		if err != nil {
 			t.Error(err)
 		}

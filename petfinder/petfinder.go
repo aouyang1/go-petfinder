@@ -10,7 +10,7 @@ import (
 	"github.com/google/go-querystring/query"
 )
 
-type Header struct {
+type header struct {
 	Timestamp struct {
 		T time.Time `json:"$t"`
 	} `json:"timestamp"`
@@ -27,7 +27,7 @@ type Header struct {
 	} `json:"version"`
 }
 
-type BreedListResponse struct {
+type breedListResponse struct {
 	Petfinder struct {
 		Breeds struct {
 			Breed []struct {
@@ -35,22 +35,22 @@ type BreedListResponse struct {
 			} `json:"breed"`
 			Animal string `json:"@animal"`
 		} `json:"breeds"`
-		Header Header `json:"header"`
+		Header header `json:"header"`
 	} `json:"petfinder"`
 }
 
-type PetIDResponse struct {
+type petIDResponse struct {
 	Petfinder struct {
 		PetIds struct {
 			ID struct {
 				T string `json:"$t"`
 			} `json:"id"`
 		} `json:"petIds"`
-		Header Header `json:"header"`
+		Header header `json:"header"`
 	} `json:"petfinder"`
 }
 
-type PetSingle struct {
+type petSingle struct {
 	Options struct {
 		Option interface{} `json:"option"`
 	} `json:"options"`
@@ -130,31 +130,32 @@ type PetSingle struct {
 	} `json:"animal"`
 }
 
-type PetResponse struct {
+type petResponse struct {
 	Petfinder struct {
-		Pet    PetSingle `json:"pet"`
-		Header Header    `json:"header"`
+		Pet    petSingle `json:"pet"`
+		Header header    `json:"header"`
 	} `json:"petfinder"`
 }
 
-type PetFindResponse struct {
-	Petfinder struct {
-		Pets struct {
-			Pet PetSingle `json:"pet"`
-		} `json:"pets"`
-		Header Header `json:"header"`
-	} `json:"petfinder"`
-}
-
-type PetFindResponses struct {
+type petFindResponse struct {
 	Petfinder struct {
 		Pets struct {
-			Pet []PetSingle `json:"pet"`
+			Pet petSingle `json:"pet"`
 		} `json:"pets"`
-		Header Header `json:"header"`
+		Header header `json:"header"`
 	} `json:"petfinder"`
 }
 
+type petFindResponses struct {
+	Petfinder struct {
+		Pets struct {
+			Pet []petSingle `json:"pet"`
+		} `json:"pets"`
+		Header header `json:"header"`
+	} `json:"petfinder"`
+}
+
+//Pet contains all the information about a single pet
 type Pet struct {
 	Status  string
 	Options []string
@@ -189,7 +190,7 @@ type Pet struct {
 	Animal       string
 }
 
-func (p *Pet) mapPetResponse(petR PetSingle) {
+func (p *Pet) mapPetResponse(petR petSingle) {
 	switch option := petR.Options.Option.(type) {
 	case []interface{}:
 		for _, o := range option {
@@ -243,7 +244,7 @@ func (p *Pet) mapPetResponse(petR PetSingle) {
 	p.Animal = petR.Animal.T
 }
 
-type ShelterSingle struct {
+type shelterSingle struct {
 	Country struct {
 		T string `json:"$t"`
 	} `json:"country"`
@@ -285,31 +286,32 @@ type ShelterSingle struct {
 	} `json:"address1"`
 }
 
-type ShelterResponse struct {
+type shelterResponse struct {
 	Petfinder struct {
-		Shelter ShelterSingle `json:"shelter"`
-		Header  Header        `json:"header"`
+		Shelter shelterSingle `json:"shelter"`
+		Header  header        `json:"header"`
 	} `json:"petfinder"`
 }
 
-type ShelterFindResponse struct {
-	Petfinder struct {
-		Shelters struct {
-			Shelter ShelterSingle `json:"shelter"`
-		} `json:"shelters"`
-		Header Header `json:"header"`
-	} `json:"petfinder"`
-}
-
-type ShelterFindResponses struct {
+type shelterFindResponse struct {
 	Petfinder struct {
 		Shelters struct {
-			Shelter []ShelterSingle `json:"shelter"`
+			Shelter shelterSingle `json:"shelter"`
 		} `json:"shelters"`
-		Header Header `json:"header"`
+		Header header `json:"header"`
 	} `json:"petfinder"`
 }
 
+type shelterFindResponses struct {
+	Petfinder struct {
+		Shelters struct {
+			Shelter []shelterSingle `json:"shelter"`
+		} `json:"shelters"`
+		Header header `json:"header"`
+	} `json:"petfinder"`
+}
+
+//Shelter contains all information for a pet shelter
 type Shelter struct {
 	ID        string
 	Name      string
@@ -326,7 +328,7 @@ type Shelter struct {
 	Fax       string
 }
 
-func (s *Shelter) mapShelterResponse(shelterR ShelterSingle) {
+func (s *Shelter) mapShelterResponse(shelterR shelterSingle) {
 	s.ID = shelterR.ID.T
 	s.Name = shelterR.Name.T
 	s.Longitude = shelterR.Longitude.T
@@ -342,23 +344,24 @@ func (s *Shelter) mapShelterResponse(shelterR ShelterSingle) {
 	s.Fax = shelterR.Fax.T
 }
 
-type PetFinderClient struct {
-	apiKey  string
-	baseURL string
-	format  string
-	Client  *http.Client
+type Client struct {
+	apiKey     string
+	baseURL    string
+	format     string
+	HttpClient *http.Client
 }
 
-func NewPetFinderClient(apiKey string) PetFinderClient {
-	p := PetFinderClient{
-		apiKey:  apiKey,
-		baseURL: "http://api.petfinder.com/",
-		format:  "json",
-		Client:  &http.Client{},
+func NewClient(apiKey string) Client {
+	p := Client{
+		apiKey:     apiKey,
+		baseURL:    "http://api.petfinder.com/",
+		format:     "json",
+		HttpClient: &http.Client{},
 	}
 	return p
 }
 
+//Options are input arguments to the Petfind API
 type Options struct {
 	ID          string `url:"id"`
 	Animal      string `url:"animal"`
@@ -451,7 +454,8 @@ func (o Options) validate() error {
 	return nil
 }
 
-func (p PetFinderClient) ListBreeds(opt Options) ([]string, error) {
+//ListBreeds returns a slice of breed names for a specified animal
+func (c Client) ListBreeds(opt Options) ([]string, error) {
 	var bl []string
 
 	// Check required options
@@ -459,7 +463,7 @@ func (p PetFinderClient) ListBreeds(opt Options) ([]string, error) {
 		return bl, fmt.Errorf("Require animal type in options")
 	}
 
-	endpoint := p.baseURL + "breed.list"
+	endpoint := c.baseURL + "breed.list"
 	request, err := http.NewRequest("GET", endpoint, nil)
 	if err != nil {
 		return bl, err
@@ -475,11 +479,11 @@ func (p PetFinderClient) ListBreeds(opt Options) ([]string, error) {
 		return bl, err
 	}
 
-	q["key"] = []string{p.apiKey}
-	q["format"] = []string{p.format}
+	q["key"] = []string{c.apiKey}
+	q["format"] = []string{c.format}
 	request.URL.RawQuery = q.Encode()
 
-	response, err := p.Client.Do(request)
+	response, err := c.HttpClient.Do(request)
 	if err != nil {
 		return bl, err
 	}
@@ -491,7 +495,7 @@ func (p PetFinderClient) ListBreeds(opt Options) ([]string, error) {
 		return bl, err
 	}
 
-	var breedList BreedListResponse
+	var breedList breedListResponse
 	err = json.Unmarshal(body, &breedList)
 	if err != nil {
 		return bl, err
@@ -505,10 +509,11 @@ func (p PetFinderClient) ListBreeds(opt Options) ([]string, error) {
 	return bl, err
 }
 
-func (p PetFinderClient) GetRandomPetID(opt Options) (string, error) {
+//GetRandomPetID return a string id of a random pet
+func (c Client) GetRandomPetID(opt Options) (string, error) {
 	var id string
 
-	endpoint := p.baseURL + "pet.getRandom"
+	endpoint := c.baseURL + "pet.getRandom"
 	request, err := http.NewRequest("GET", endpoint, nil)
 	if err != nil {
 		return id, err
@@ -527,11 +532,11 @@ func (p PetFinderClient) GetRandomPetID(opt Options) (string, error) {
 		return id, err
 	}
 
-	q["key"] = []string{p.apiKey}
-	q["format"] = []string{p.format}
+	q["key"] = []string{c.apiKey}
+	q["format"] = []string{c.format}
 	request.URL.RawQuery = q.Encode()
 
-	response, err := p.Client.Do(request)
+	response, err := c.HttpClient.Do(request)
 	if err != nil {
 		return id, err
 	}
@@ -543,7 +548,7 @@ func (p PetFinderClient) GetRandomPetID(opt Options) (string, error) {
 		return id, err
 	}
 
-	var petID PetIDResponse
+	var petID petIDResponse
 	err = json.Unmarshal(body, &petID)
 	if err != nil {
 		return id, err
@@ -552,10 +557,11 @@ func (p PetFinderClient) GetRandomPetID(opt Options) (string, error) {
 	return petID.Petfinder.PetIds.ID.T, nil
 }
 
-func (p PetFinderClient) GetRandomPet(opt Options) (Pet, error) {
+//GetRandomPet return a single random Pet
+func (c Client) GetRandomPet(opt Options) (Pet, error) {
 	var pet Pet
 
-	endpoint := p.baseURL + "pet.getRandom"
+	endpoint := c.baseURL + "pet.getRandom"
 	request, err := http.NewRequest("GET", endpoint, nil)
 	if err != nil {
 		return pet, err
@@ -576,11 +582,11 @@ func (p PetFinderClient) GetRandomPet(opt Options) (Pet, error) {
 		return pet, err
 	}
 
-	q["key"] = []string{p.apiKey}
-	q["format"] = []string{p.format}
+	q["key"] = []string{c.apiKey}
+	q["format"] = []string{c.format}
 	request.URL.RawQuery = q.Encode()
 
-	response, err := p.Client.Do(request)
+	response, err := c.HttpClient.Do(request)
 	if err != nil {
 		return pet, err
 	}
@@ -592,21 +598,22 @@ func (p PetFinderClient) GetRandomPet(opt Options) (Pet, error) {
 		return pet, err
 	}
 
-	var petResponse PetResponse
-	err = json.Unmarshal(body, &petResponse)
+	var petResp petResponse
+	err = json.Unmarshal(body, &petResp)
 	if err != nil {
 		return pet, err
 	}
 
-	pet.mapPetResponse(petResponse.Petfinder.Pet)
+	pet.mapPetResponse(petResp.Petfinder.Pet)
 
 	return pet, nil
 }
 
-func (p PetFinderClient) GetPet(opt Options) (Pet, error) {
+//GetPet retrieves information about a single Pet given an ID
+func (c Client) GetPet(opt Options) (Pet, error) {
 	var pet Pet
 
-	endpoint := p.baseURL + "pet.get"
+	endpoint := c.baseURL + "pet.get"
 	request, err := http.NewRequest("GET", endpoint, nil)
 	if err != nil {
 		return pet, err
@@ -627,11 +634,11 @@ func (p PetFinderClient) GetPet(opt Options) (Pet, error) {
 		return pet, err
 	}
 
-	q["key"] = []string{p.apiKey}
-	q["format"] = []string{p.format}
+	q["key"] = []string{c.apiKey}
+	q["format"] = []string{c.format}
 	request.URL.RawQuery = q.Encode()
 
-	response, err := p.Client.Do(request)
+	response, err := c.HttpClient.Do(request)
 	if err != nil {
 		return pet, err
 	}
@@ -643,21 +650,22 @@ func (p PetFinderClient) GetPet(opt Options) (Pet, error) {
 		return pet, err
 	}
 
-	var petResponse PetResponse
-	err = json.Unmarshal(body, &petResponse)
+	var petResp petResponse
+	err = json.Unmarshal(body, &petResp)
 	if err != nil {
 		return pet, err
 	}
 
-	pet.mapPetResponse(petResponse.Petfinder.Pet)
+	pet.mapPetResponse(petResp.Petfinder.Pet)
 
 	return pet, nil
 }
 
-func (p PetFinderClient) FindPet(opt Options) ([]Pet, error) {
+//FindPet returns a slice of Pets with their information given a location and other search options
+func (c Client) FindPet(opt Options) ([]Pet, error) {
 	var pets []Pet
 
-	endpoint := p.baseURL + "pet.find"
+	endpoint := c.baseURL + "pet.find"
 	request, err := http.NewRequest("GET", endpoint, nil)
 	if err != nil {
 		return pets, err
@@ -677,11 +685,11 @@ func (p PetFinderClient) FindPet(opt Options) ([]Pet, error) {
 		return pets, err
 	}
 
-	q["key"] = []string{p.apiKey}
-	q["format"] = []string{p.format}
+	q["key"] = []string{c.apiKey}
+	q["format"] = []string{c.format}
 	request.URL.RawQuery = q.Encode()
 
-	response, err := p.Client.Do(request)
+	response, err := c.HttpClient.Do(request)
 	if err != nil {
 		return pets, err
 	}
@@ -694,16 +702,16 @@ func (p PetFinderClient) FindPet(opt Options) ([]Pet, error) {
 	}
 
 	var pet Pet
-	var petFindResponse PetFindResponse
-	err = json.Unmarshal(body, &petFindResponse)
+	var petFindResp petFindResponse
+	err = json.Unmarshal(body, &petFindResp)
 	if err != nil {
-		var petFindResponses PetFindResponses
-		err = json.Unmarshal(body, &petFindResponses)
+		var petFindResps petFindResponses
+		err = json.Unmarshal(body, &petFindResps)
 		if err != nil {
 			return pets, err
 		}
 
-		for _, petR := range petFindResponses.Petfinder.Pets.Pet {
+		for _, petR := range petFindResps.Petfinder.Pets.Pet {
 			pet = Pet{}
 			pet.mapPetResponse(petR)
 			pets = append(pets, pet)
@@ -713,16 +721,17 @@ func (p PetFinderClient) FindPet(opt Options) ([]Pet, error) {
 	}
 
 	pet = Pet{}
-	pet.mapPetResponse(petFindResponse.Petfinder.Pets.Pet)
+	pet.mapPetResponse(petFindResp.Petfinder.Pets.Pet)
 	pets = append(pets, pet)
 
 	return pets, nil
 }
 
-func (p PetFinderClient) FindShelter(opt Options) ([]Shelter, error) {
+//FindShelter resturns a slice of Shelter information given a location and other search options
+func (c Client) FindShelter(opt Options) ([]Shelter, error) {
 	var shelters []Shelter
 
-	endpoint := p.baseURL + "shelter.find"
+	endpoint := c.baseURL + "shelter.find"
 	request, err := http.NewRequest("GET", endpoint, nil)
 	if err != nil {
 		return shelters, err
@@ -742,11 +751,11 @@ func (p PetFinderClient) FindShelter(opt Options) ([]Shelter, error) {
 		return shelters, err
 	}
 
-	q["key"] = []string{p.apiKey}
-	q["format"] = []string{p.format}
+	q["key"] = []string{c.apiKey}
+	q["format"] = []string{c.format}
 	request.URL.RawQuery = q.Encode()
 
-	response, err := p.Client.Do(request)
+	response, err := c.HttpClient.Do(request)
 	if err != nil {
 		return shelters, err
 	}
@@ -759,16 +768,16 @@ func (p PetFinderClient) FindShelter(opt Options) ([]Shelter, error) {
 	}
 
 	var shelter Shelter
-	var shelterFindResponse ShelterFindResponse
-	err = json.Unmarshal(body, &shelterFindResponse)
+	var shelterFindResp shelterFindResponse
+	err = json.Unmarshal(body, &shelterFindResp)
 	if err != nil {
-		var shelterFindResponses ShelterFindResponses
-		err = json.Unmarshal(body, &shelterFindResponses)
+		var shelterFindResps shelterFindResponses
+		err = json.Unmarshal(body, &shelterFindResps)
 		if err != nil {
 			return shelters, err
 		}
 
-		for _, shelterR := range shelterFindResponses.Petfinder.Shelters.Shelter {
+		for _, shelterR := range shelterFindResps.Petfinder.Shelters.Shelter {
 			shelter = Shelter{}
 			shelter.mapShelterResponse(shelterR)
 			shelters = append(shelters, shelter)
@@ -778,16 +787,17 @@ func (p PetFinderClient) FindShelter(opt Options) ([]Shelter, error) {
 	}
 
 	shelter = Shelter{}
-	shelter.mapShelterResponse(shelterFindResponse.Petfinder.Shelters.Shelter)
+	shelter.mapShelterResponse(shelterFindResp.Petfinder.Shelters.Shelter)
 	shelters = append(shelters, shelter)
 
 	return shelters, nil
 }
 
-func (p PetFinderClient) GetShelter(opt Options) (Shelter, error) {
+//GetShelter retrieves Shelter information given an shelter ID
+func (c Client) GetShelter(opt Options) (Shelter, error) {
 	var shelter Shelter
 
-	endpoint := p.baseURL + "shelter.get"
+	endpoint := c.baseURL + "shelter.get"
 	request, err := http.NewRequest("GET", endpoint, nil)
 	if err != nil {
 		return shelter, err
@@ -807,11 +817,11 @@ func (p PetFinderClient) GetShelter(opt Options) (Shelter, error) {
 		return shelter, err
 	}
 
-	q["key"] = []string{p.apiKey}
-	q["format"] = []string{p.format}
+	q["key"] = []string{c.apiKey}
+	q["format"] = []string{c.format}
 	request.URL.RawQuery = q.Encode()
 
-	response, err := p.Client.Do(request)
+	response, err := c.HttpClient.Do(request)
 	if err != nil {
 		return shelter, err
 	}
@@ -823,21 +833,22 @@ func (p PetFinderClient) GetShelter(opt Options) (Shelter, error) {
 		return shelter, err
 	}
 
-	var shelterResponse ShelterResponse
-	err = json.Unmarshal(body, &shelterResponse)
+	var shelterResp shelterResponse
+	err = json.Unmarshal(body, &shelterResp)
 	if err != nil {
 		return shelter, nil
 	}
 
-	shelter.mapShelterResponse(shelterResponse.Petfinder.Shelter)
+	shelter.mapShelterResponse(shelterResp.Petfinder.Shelter)
 
 	return shelter, nil
 }
 
-func (p PetFinderClient) GetShelterPets(opt Options) ([]Pet, error) {
+//GetShelterPets retrieves a slice of Pet information for a shelter ID
+func (c Client) GetShelterPets(opt Options) ([]Pet, error) {
 	var pets []Pet
 
-	endpoint := p.baseURL + "shelter.getPets"
+	endpoint := c.baseURL + "shelter.getPets"
 	request, err := http.NewRequest("GET", endpoint, nil)
 	if err != nil {
 		return pets, err
@@ -857,11 +868,11 @@ func (p PetFinderClient) GetShelterPets(opt Options) ([]Pet, error) {
 		return pets, err
 	}
 
-	q["key"] = []string{p.apiKey}
-	q["format"] = []string{p.format}
+	q["key"] = []string{c.apiKey}
+	q["format"] = []string{c.format}
 	request.URL.RawQuery = q.Encode()
 
-	response, err := p.Client.Do(request)
+	response, err := c.HttpClient.Do(request)
 	if err != nil {
 		return pets, err
 	}
@@ -874,16 +885,16 @@ func (p PetFinderClient) GetShelterPets(opt Options) ([]Pet, error) {
 	}
 
 	var pet Pet
-	var petFindResponse PetFindResponse
-	err = json.Unmarshal(body, &petFindResponse)
+	var petFindResp petFindResponse
+	err = json.Unmarshal(body, &petFindResp)
 	if err != nil {
-		var petFindResponses PetFindResponses
-		err = json.Unmarshal(body, &petFindResponses)
+		var petFindResps petFindResponses
+		err = json.Unmarshal(body, &petFindResps)
 		if err != nil {
 			return pets, err
 		}
 
-		for _, petR := range petFindResponses.Petfinder.Pets.Pet {
+		for _, petR := range petFindResps.Petfinder.Pets.Pet {
 			pet = Pet{}
 			pet.mapPetResponse(petR)
 			pets = append(pets, pet)
@@ -893,7 +904,7 @@ func (p PetFinderClient) GetShelterPets(opt Options) ([]Pet, error) {
 	}
 
 	pet = Pet{}
-	pet.mapPetResponse(petFindResponse.Petfinder.Pets.Pet)
+	pet.mapPetResponse(petFindResp.Petfinder.Pets.Pet)
 	pets = append(pets, pet)
 
 	return pets, nil

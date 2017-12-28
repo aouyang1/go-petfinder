@@ -141,6 +141,9 @@ type petResponse struct {
 
 type petFindResponse struct {
 	Petfinder struct {
+		LastOffset struct {
+			T string `json:"lastOffset"`
+		}
 		Pets struct {
 			Pet petSingle `json:"pet"`
 		} `json:"pets"`
@@ -150,6 +153,9 @@ type petFindResponse struct {
 
 type petFindResponses struct {
 	Petfinder struct {
+		LastOffset struct {
+			T string `json:"lastOffset"`
+		}
 		Pets struct {
 			Pet []petSingle `json:"pet"`
 		} `json:"pets"`
@@ -297,6 +303,9 @@ type shelterResponse struct {
 
 type shelterFindResponse struct {
 	Petfinder struct {
+		LastOffset struct {
+			T string `json:"lastOffset"`
+		}
 		Shelters struct {
 			Shelter shelterSingle `json:"shelter"`
 		} `json:"shelters"`
@@ -306,6 +315,9 @@ type shelterFindResponse struct {
 
 type shelterFindResponses struct {
 	Petfinder struct {
+		LastOffset struct {
+			T string `json:"lastOffset"`
+		}
 		Shelters struct {
 			Shelter []shelterSingle `json:"shelter"`
 		} `json:"shelters"`

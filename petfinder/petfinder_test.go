@@ -120,6 +120,8 @@ func TestFindPet(t *testing.T) {
 	opts := []Options{
 		Options{Location: "75093", Count: 10},
 		Options{Location: "75093", Count: 1},
+		Options{Location: "94041", Count: 10, Offset: 1990},
+		Options{Location: "94041", Count: 1000, Offset: 5},
 	}
 
 	for _, o := range opts {
@@ -148,6 +150,7 @@ func TestFindShelter(t *testing.T) {
 	opts := []Options{
 		Options{Location: "75093", Count: 10},
 		Options{Location: "75093", Count: 1},
+		Options{Location: "94041", Count: 10, Offset: 1990},
 	}
 
 	for _, o := range opts {

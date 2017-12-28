@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
+	"math"
 	"net/http"
 	"time"
 
@@ -344,6 +346,12 @@ func (s *Shelter) mapShelterResponse(shelterR shelterSingle) {
 	s.Fax = shelterR.Fax.T
 }
 
+const (
+	retryMax = 4
+	minWait  = 600 * time.Millisecond
+	maxWait  = 5 * time.Second
+)
+
 //Client is the Petfinder API client entrypoint
 type Client struct {
 	apiKey     string
@@ -456,6 +464,27 @@ func (o Options) validate() error {
 	return nil
 }
 
+func (c Client) submitRequestWithRetry(request *http.Request) (*http.Response, error) {
+	var response *http.Response
+	var err error
+	var sleep time.Duration
+
+	for i := 0; ; i++ {
+		response, err = c.HTTPClient.Do(request)
+		if err == nil || i == retryMax {
+			break
+		}
+		sleep = time.Duration(math.Pow(2, float64(i)) * float64(minWait))
+		if sleep > maxWait {
+			sleep = maxWait
+		}
+		log.Printf("Retrying in %v with %d retries remaining", sleep, retryMax-i-1)
+		time.Sleep(sleep)
+	}
+
+	return response, err
+}
+
 //ListBreeds returns a slice of breed names for a specified animal
 func (c Client) ListBreeds(opt Options) ([]string, error) {
 	var bl []string
@@ -485,7 +514,7 @@ func (c Client) ListBreeds(opt Options) ([]string, error) {
 	q["format"] = []string{c.format}
 	request.URL.RawQuery = q.Encode()
 
-	response, err := c.HTTPClient.Do(request)
+	response, err := c.submitRequestWithRetry(request)
 	if err != nil {
 		return bl, err
 	}
@@ -538,7 +567,7 @@ func (c Client) GetRandomPetID(opt Options) (string, error) {
 	q["format"] = []string{c.format}
 	request.URL.RawQuery = q.Encode()
 
-	response, err := c.HTTPClient.Do(request)
+	response, err := c.submitRequestWithRetry(request)
 	if err != nil {
 		return id, err
 	}
@@ -588,7 +617,7 @@ func (c Client) GetRandomPet(opt Options) (Pet, error) {
 	q["format"] = []string{c.format}
 	request.URL.RawQuery = q.Encode()
 
-	response, err := c.HTTPClient.Do(request)
+	response, err := c.submitRequestWithRetry(request)
 	if err != nil {
 		return pet, err
 	}
@@ -640,7 +669,7 @@ func (c Client) GetPet(opt Options) (Pet, error) {
 	q["format"] = []string{c.format}
 	request.URL.RawQuery = q.Encode()
 
-	response, err := c.HTTPClient.Do(request)
+	response, err := c.submitRequestWithRetry(request)
 	if err != nil {
 		return pet, err
 	}
@@ -691,7 +720,7 @@ func (c Client) FindPet(opt Options) ([]Pet, error) {
 	q["format"] = []string{c.format}
 	request.URL.RawQuery = q.Encode()
 
-	response, err := c.HTTPClient.Do(request)
+	response, err := c.submitRequestWithRetry(request)
 	if err != nil {
 		return pets, err
 	}
@@ -757,7 +786,7 @@ func (c Client) FindShelter(opt Options) ([]Shelter, error) {
 	q["format"] = []string{c.format}
 	request.URL.RawQuery = q.Encode()
 
-	response, err := c.HTTPClient.Do(request)
+	response, err := c.submitRequestWithRetry(request)
 	if err != nil {
 		return shelters, err
 	}
@@ -823,7 +852,7 @@ func (c Client) GetShelter(opt Options) (Shelter, error) {
 	q["format"] = []string{c.format}
 	request.URL.RawQuery = q.Encode()
 
-	response, err := c.HTTPClient.Do(request)
+	response, err := c.submitRequestWithRetry(request)
 	if err != nil {
 		return shelter, err
 	}
@@ -874,7 +903,7 @@ func (c Client) GetShelterPets(opt Options) ([]Pet, error) {
 	q["format"] = []string{c.format}
 	request.URL.RawQuery = q.Encode()
 
-	response, err := c.HTTPClient.Do(request)
+	response, err := c.submitRequestWithRetry(request)
 	if err != nil {
 		return pets, err
 	}
@@ -892,6 +921,8 @@ func (c Client) GetShelterPets(opt Options) ([]Pet, error) {
 	if err != nil {
 		var petFindResps petFindResponses
 		err = json.Unmarshal(body, &petFindResps)
+		//out, _ := json.MarshalIndent(petFindResps, "", "  ")
+		//fmt.Println(string(out))
 		if err != nil {
 			return pets, err
 		}

@@ -1,14 +1,11 @@
 language: go
 go:
- - 1.9
- - master
-
-before_script:
-  - GO_FILES=$(find . -iname '*.go' -type f | grep -v /vendor/)
-  - go get github.com/google/go-querystring/query
-
+- 1.9
+- master
 script:
- - test -z $(gofmt -s -l $GO_FILES)
- - go test -v -race ./...
- - go vet ./...
- - golint -set_exit_status $(go list ./...)
+- go test -v -race ./...
+- go vet ./...
+- golint -set_exit_status $(go list ./...)
+env:
+  global:
+    secure: uRm3mOLFVtnYuHAxWcNS9jYXeA/2DyAxknUTMkpEFylc9pYSh4o1YXLoXUV2vNUXqNwUkXjpjgVTK/IUYlpWt/1cyzWY8znaXaoKNRpttcac2sowMQo3WsnQJHVPraf+QYGf2wn0WmsyPkJSYU0VE4HSF5WYPKpdJdmESZuji8yuVDnJOZx1EM+sqoIf60w9iUIsoXmItN1rLlk6+lwRP6CGFDFbRVxzCjhD4RV1rQq9Vmm8Ga0/3Aj7Yu4vixUlrwaa3FOTVsyhcWzB9hI1EbvECs5zrNJ/BKEAZq2W4dH5nhI4b7f71nSK68zIYKa5BkxTTdtwLX7nGmkluThIEHhLgODMN9BDuX6j/hQKl5XPtpD0k5wKSFSwfO5EDoOfjyCotqlACn8+BDL2YXWrjB1zWAf4aye5Qx74dp1KqAsq3LFw7vlUshiyF7O+KpEwgWx7ogre4zSTIvuAEh5QCca1d8Ts//BZcj3mmWe4l4RtEPpFjPE/g2OWRovdw/g7uqvwqofYP2kULHEoyHIu00PsojZ4myV3v7D7xhdcWJSe3wuiwT8RRcuKm7q5OsDWJ+95yo8X0W9D8sqD0BV7RnrHbNfKR1M2Y1OPqAJS13ITaGcIWhmmuBYAX7boo3PYEAcaft2PyHncIW2XKhTdEhSkFGG+4lsKb6988uicWlk=

@@ -344,19 +344,21 @@ func (s *Shelter) mapShelterResponse(shelterR shelterSingle) {
 	s.Fax = shelterR.Fax.T
 }
 
+//Client is the Petfinder API client entrypoint
 type Client struct {
 	apiKey     string
 	baseURL    string
 	format     string
-	HttpClient *http.Client
+	HTTPClient *http.Client
 }
 
+//NewClient creates a new Petfinder API client as an entrypoint with a given api key
 func NewClient(apiKey string) Client {
 	p := Client{
 		apiKey:     apiKey,
 		baseURL:    "http://api.petfinder.com/",
 		format:     "json",
-		HttpClient: &http.Client{},
+		HTTPClient: &http.Client{},
 	}
 	return p
 }
@@ -483,7 +485,7 @@ func (c Client) ListBreeds(opt Options) ([]string, error) {
 	q["format"] = []string{c.format}
 	request.URL.RawQuery = q.Encode()
 
-	response, err := c.HttpClient.Do(request)
+	response, err := c.HTTPClient.Do(request)
 	if err != nil {
 		return bl, err
 	}
@@ -536,7 +538,7 @@ func (c Client) GetRandomPetID(opt Options) (string, error) {
 	q["format"] = []string{c.format}
 	request.URL.RawQuery = q.Encode()
 
-	response, err := c.HttpClient.Do(request)
+	response, err := c.HTTPClient.Do(request)
 	if err != nil {
 		return id, err
 	}
@@ -586,7 +588,7 @@ func (c Client) GetRandomPet(opt Options) (Pet, error) {
 	q["format"] = []string{c.format}
 	request.URL.RawQuery = q.Encode()
 
-	response, err := c.HttpClient.Do(request)
+	response, err := c.HTTPClient.Do(request)
 	if err != nil {
 		return pet, err
 	}
@@ -638,7 +640,7 @@ func (c Client) GetPet(opt Options) (Pet, error) {
 	q["format"] = []string{c.format}
 	request.URL.RawQuery = q.Encode()
 
-	response, err := c.HttpClient.Do(request)
+	response, err := c.HTTPClient.Do(request)
 	if err != nil {
 		return pet, err
 	}
@@ -689,7 +691,7 @@ func (c Client) FindPet(opt Options) ([]Pet, error) {
 	q["format"] = []string{c.format}
 	request.URL.RawQuery = q.Encode()
 
-	response, err := c.HttpClient.Do(request)
+	response, err := c.HTTPClient.Do(request)
 	if err != nil {
 		return pets, err
 	}
@@ -755,7 +757,7 @@ func (c Client) FindShelter(opt Options) ([]Shelter, error) {
 	q["format"] = []string{c.format}
 	request.URL.RawQuery = q.Encode()
 
-	response, err := c.HttpClient.Do(request)
+	response, err := c.HTTPClient.Do(request)
 	if err != nil {
 		return shelters, err
 	}
@@ -821,7 +823,7 @@ func (c Client) GetShelter(opt Options) (Shelter, error) {
 	q["format"] = []string{c.format}
 	request.URL.RawQuery = q.Encode()
 
-	response, err := c.HttpClient.Do(request)
+	response, err := c.HTTPClient.Do(request)
 	if err != nil {
 		return shelter, err
 	}
@@ -872,7 +874,7 @@ func (c Client) GetShelterPets(opt Options) ([]Pet, error) {
 	q["format"] = []string{c.format}
 	request.URL.RawQuery = q.Encode()
 
-	response, err := c.HttpClient.Do(request)
+	response, err := c.HTTPClient.Do(request)
 	if err != nil {
 		return pets, err
 	}

@@ -15,7 +15,7 @@ func fetchAPIKey() (string, error) {
 
 }
 
-func TestNewPetFinderClient(t *testing.T) {
+func TestNewClient(t *testing.T) {
 	apiKey, err := fetchAPIKey()
 	if err != nil {
 		t.Error(err)

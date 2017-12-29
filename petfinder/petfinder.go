@@ -179,6 +179,8 @@ func (c Client) submitRequest(apiMethod string, opt Options) ([]byte, error) {
 }
 
 //ListBreeds returns a slice of breed names for a specified animal
+//animal must be specified and one of the following:
+//  barnyard, bird, cat, dog, horse, reptile, smallfurry
 func (c Client) ListBreeds(opt Options) (Breeds, error) {
 	var b Breeds
 
@@ -196,6 +198,7 @@ func (c Client) ListBreeds(opt Options) (Breeds, error) {
 }
 
 //GetRandomPetID return a string id of a random pet
+//output option is overriden to id
 func (c Client) GetRandomPetID(opt Options) (string, error) {
 	var id string
 
@@ -216,6 +219,14 @@ func (c Client) GetRandomPetID(opt Options) (string, error) {
 }
 
 //GetRandomPet return a single random Pet
+//available options:
+//  - animal 	string	optional 	type of animal (barnyard, bird, cat, dog, horse, reptile, smallfurry)
+//  - breed 	string 	optional 	breed of animal (use breeds.list for a list of valid breeds)
+//  - size 	string 	optional 	size of animal (S=small, M=medium, L=large, XL=extra-large)
+//  - sex 	character 	optional 	M=male, F=female
+//  - location 	string 	optional 	the ZIP/postal code or city and state the animal should be located (NOTE: the closest possible animal will be selected)
+//  - shelterid 	string 	optional 	ID of the shelter that posted the pet
+//  - output 	string 	optional How much of the pet record to return: basic, full
 func (c Client) GetRandomPet(opt Options) (Pet, error) {
 	var pet Pet
 
@@ -233,6 +244,7 @@ func (c Client) GetRandomPet(opt Options) (Pet, error) {
 }
 
 //GetPet retrieves information about a single Pet given an ID
+//id option must be specified which indicates the pet ID
 func (c Client) GetPet(opt Options) (Pet, error) {
 	var pet Pet
 
@@ -250,6 +262,7 @@ func (c Client) GetPet(opt Options) (Pet, error) {
 }
 
 //FindPet returns a slice of Pets with their information given a location and other search options
+//location option must be specified with represents a zip code or city/state
 func (c Client) FindPet(opt Options) (Pets, error) {
 	var pets Pets
 
@@ -266,6 +279,7 @@ func (c Client) FindPet(opt Options) (Pets, error) {
 }
 
 //FindShelter resturns a slice of Shelter information given a location and other search options
+//location option must be specified with represents a zip code or city/state
 func (c Client) FindShelter(opt Options) (Shelters, error) {
 	var shelters Shelters
 
@@ -282,6 +296,7 @@ func (c Client) FindShelter(opt Options) (Shelters, error) {
 }
 
 //GetShelter retrieves Shelter information given an shelter ID
+//id options must be specified which represents the shelter id
 func (c Client) GetShelter(opt Options) (Shelter, error) {
 	var shelter Shelter
 
@@ -298,6 +313,7 @@ func (c Client) GetShelter(opt Options) (Shelter, error) {
 }
 
 //GetShelterPets retrieves a slice of Pet information for a shelter ID
+//id options must be specified which represents the shelter id
 func (c Client) GetShelterPets(opt Options) (Pets, error) {
 	var pets Pets
 

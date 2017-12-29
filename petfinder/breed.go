@@ -16,8 +16,10 @@ type breedListResponse struct {
 	} `json:"petfinder"`
 }
 
+//Breeds is a slice of breeds for an animal type
 type Breeds []string
 
+//UnmarshalJSON is a custom unmarshaller for Breeds
 func (b *Breeds) UnmarshalJSON(buf []byte) error {
 	var breedList breedListResponse
 	err := json.Unmarshal(buf, &breedList)

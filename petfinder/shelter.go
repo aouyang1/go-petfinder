@@ -110,6 +110,7 @@ func (s *Shelter) mapShelterResponse(shelterR shelterSingle) {
 	s.Fax = shelterR.Fax.T
 }
 
+//UnmarshalJSON is a custom unmarshaller for Shelter
 func (s *Shelter) UnmarshalJSON(buf []byte) error {
 	var shelterResp shelterResponse
 	err := json.Unmarshal(buf, &shelterResp)
@@ -121,8 +122,10 @@ func (s *Shelter) UnmarshalJSON(buf []byte) error {
 	return nil
 }
 
+//Shelters is a slice of shelter
 type Shelters []Shelter
 
+//UnmarshalJSON is a custom unmarshaller for Shelter
 func (s *Shelters) UnmarshalJSON(buf []byte) error {
 	var shelter Shelter
 	var shelterFindResp shelterFindResponse

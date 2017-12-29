@@ -216,6 +216,7 @@ func (p *Pet) mapPetResponse(petR petSingle) {
 	p.Animal = petR.Animal.T
 }
 
+//UnmarshalJSON is a custom unmarshaller for Pet
 func (p *Pet) UnmarshalJSON(buf []byte) error {
 	var petResp petResponse
 	err := json.Unmarshal(buf, &petResp)
@@ -227,8 +228,10 @@ func (p *Pet) UnmarshalJSON(buf []byte) error {
 	return nil
 }
 
+//Pets is a slice of pet
 type Pets []Pet
 
+//UnmarshalJSON is a custom unmarshaller for Pets
 func (p *Pets) UnmarshalJSON(buf []byte) error {
 	var pet Pet
 	var petFindResp petFindResponse

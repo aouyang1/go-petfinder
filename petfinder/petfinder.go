@@ -219,14 +219,15 @@ func (c Client) GetRandomPetID(opt Options) (string, error) {
 }
 
 //GetRandomPet return a single random Pet
+//
 //available options:
-//  - animal 	string	optional 	type of animal (barnyard, bird, cat, dog, horse, reptile, smallfurry)
-//  - breed 	string 	optional 	breed of animal (use breeds.list for a list of valid breeds)
-//  - size 	string 	optional 	size of animal (S=small, M=medium, L=large, XL=extra-large)
-//  - sex 	character 	optional 	M=male, F=female
-//  - location 	string 	optional 	the ZIP/postal code or city and state the animal should be located (NOTE: the closest possible animal will be selected)
-//  - shelterid 	string 	optional 	ID of the shelter that posted the pet
-//  - output 	string 	optional How much of the pet record to return: basic, full
+//  Animal    string	optional 	type of animal (barnyard, bird, cat, dog, horse, reptile, smallfurry)
+//  Breed      string  optional  breed of animal (use breeds.list for a list of valid breeds)
+//  Size       string  optional  size of animal (S=small, M=medium, L=large, XL=extra-large)
+//  Sex        string  optional  M=male, F=female
+//  Location   string  optional  the ZIP/postal code or city and state the animal should be located (NOTE: the closest possible animal will be selected)
+//  ShelterID  string  optional  ID of the shelter that posted the pet
+//  Output     string  optional  How much of the pet record to return: basic, full
 func (c Client) GetRandomPet(opt Options) (Pet, error) {
 	var pet Pet
 
